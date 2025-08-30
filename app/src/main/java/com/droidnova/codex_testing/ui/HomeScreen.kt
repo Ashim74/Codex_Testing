@@ -12,6 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.droidnova.codex_testing.ClipboardViewModel
@@ -34,14 +36,16 @@ fun HomeScreen(
             )
         }
     ) { innerPadding ->
+        val history by viewModel.clipboardHistory.collectAsState(initial = emptyList())
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            items(viewModel.clipboardHistory) { item ->
+            items(history) { item ->
                 Text(
-                    text = item,
+                    text = item.text,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
