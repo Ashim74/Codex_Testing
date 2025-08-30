@@ -7,6 +7,7 @@ import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import com.droidnova.codex_testing.data.ClipboardDatabase
@@ -25,16 +26,19 @@ class ClipboardService : Service() {
         val clip = clipboardManager.primaryClip
         val text = clip?.getItemAt(0)?.coerceToText(this).toString()
         if (text.isNotBlank()) {
+            Log.d(TAG, "Clipboard changed: $text")
             scope.launch {
                 ClipboardDatabase.getInstance(applicationContext)
                     .clipboardDao()
                     .insert(ClipboardItem(text = text))
+                Log.d(TAG, "Stored clipboard text")
             }
         }
     }
 
     override fun onCreate() {
         super.onCreate()
+        Log.d(TAG, "Service created")
         clipboardManager = getSystemService<ClipboardManager>()!!
         clipboardManager.addPrimaryClipChangedListener(listener)
         createNotificationChannel()
@@ -47,6 +51,7 @@ class ClipboardService : Service() {
     }
 
     override fun onDestroy() {
+        Log.d(TAG, "Service destroyed")
         clipboardManager.removePrimaryClipChangedListener(listener)
         scope.cancel()
         super.onDestroy()
@@ -69,6 +74,7 @@ class ClipboardService : Service() {
     companion object {
         private const val CHANNEL_ID = "clipboard_service"
         private const val NOTIFICATION_ID = 1
+        private const val TAG = "ClipboardService"
     }
 }
 
